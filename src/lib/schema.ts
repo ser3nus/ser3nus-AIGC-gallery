@@ -2,7 +2,7 @@ import { z } from 'zod'
 
 const slugRegex = /^[a-z0-9-]+$/
 
-const parametersSchema = z.record(z.unknown()).optional()
+const parametersSchema = z.record(z.string(), z.unknown()).optional()
 
 export const workEntrySchema = z.object({
   slug: z.string().regex(slugRegex, 'slug must be lowercase alphanumeric with hyphens'),

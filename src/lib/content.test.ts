@@ -55,6 +55,33 @@ function cleanTestFiles(mediaPaths: string[], mdxPaths: string[]): void {
   }
 }
 
+/** Aggressively remove all non-.gitkeep files from media + content works dirs */
+function cleanAllFiles(): void {
+  for (const subdir of ['images', 'videos', 'audio', 'text']) {
+    const mediaSub = path.join(MEDIA_DIR, subdir)
+    if (fs.existsSync(mediaSub)) {
+      for (const f of fs.readdirSync(mediaSub)) {
+        if (f === '.gitkeep') continue
+        try { fs.unlinkSync(path.join(mediaSub, f)) } catch { /* ignore */ }
+      }
+    }
+    const contentSub = path.join(CONTENT_DIR, subdir)
+    if (fs.existsSync(contentSub)) {
+      for (const f of fs.readdirSync(contentSub)) {
+        if (f === '.gitkeep') continue
+        try { fs.unlinkSync(path.join(contentSub, f)) } catch { /* ignore */ }
+      }
+    }
+  }
+  // Also clean flat .mdx files in CONTENT_DIR root
+  if (fs.existsSync(CONTENT_DIR)) {
+    for (const f of fs.readdirSync(CONTENT_DIR)) {
+      if (f === '.gitkeep' || fs.statSync(path.join(CONTENT_DIR, f)).isDirectory()) continue
+      try { fs.unlinkSync(path.join(CONTENT_DIR, f)) } catch { /* ignore */ }
+    }
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Shared state for cleanup
 // ---------------------------------------------------------------------------
@@ -88,6 +115,7 @@ afterAll(() => {
 
 beforeEach(() => {
   invalidateCache()
+  cleanAllFiles()
   cleanTestFiles(createdMedia, createdMdx)
   createdMedia.length = 0
   createdMdx.length = 0

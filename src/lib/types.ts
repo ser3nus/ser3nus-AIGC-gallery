@@ -20,4 +20,4 @@ export interface WorkEntry {
   isBare: boolean
 }
 
-export interface WorksIndex extends Array<WorkEntry> {}
+export type WorksIndex = WorkEntry[]
