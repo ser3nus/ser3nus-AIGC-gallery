@@ -125,14 +125,12 @@ function buildWorksIndex(): WorksIndex {
   return index
 }
 
-let cache: WorksIndex | null = null
+export function invalidateCache(): void { /* no-op: always scan fresh below */ }
 
 function getIndex(): WorksIndex {
-  if (cache === null) cache = buildWorksIndex()
-  return cache
+  // Always scan fresh so new files appear immediately without restart
+  return buildWorksIndex()
 }
-
-export function invalidateCache(): void { cache = null }
 
 export function getAllWorks(): WorkEntry[] {
   return [...getIndex()]
