@@ -4,14 +4,20 @@ import matter from 'gray-matter'
 import { workEntrySchema } from './schema'
 import type { WorkEntry, WorksIndex, WorkType } from './types'
 
-/** Sanitize a filename stem into a URL-safe slug */
+/** Hash a string into a short hex digest (simple djb2) */
+function hashStr(s: string): string {
+  let h = 5381
+  for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0
+  return Math.abs(h).toString(16).padStart(8, '0')
+}
+
+/** Sanitize a filename stem into a URL-safe ASCII slug.
+ *  Non-ASCII names get a short hash suffix for uniqueness. */
 function slugify(name: string): string {
-  return name
-    .normalize('NFC')
-    .replace(/[^a-zA-Z0-9一-鿿㐀-䶿-]/g, '-')
-    .replace(/-+/g, '-')
-    .replace(/^-|-$/g, '')
-    .toLowerCase()
+  const ascii = name.normalize('NFC').replace(/[^a-zA-Z0-9-]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '').toLowerCase()
+  if (ascii.length > 0 && /[a-z0-9]/.test(ascii)) return ascii
+  // Purely non-ASCII: use hash
+  return 'work-' + hashStr(name)
 }
 
 const MEDIA_DIR = path.join(process.cwd(), 'public', 'media')
@@ -48,7 +54,7 @@ function scanMediaFiles(): RawMediaFile[] {
       const ext = path.extname(entry.name).toLowerCase()
       if (!(MEDIA_EXTENSIONS[dir] || []).includes(ext)) continue
 
-      const slug = path.basename(entry.name, ext).normalize('NFC')
+      const slug = slugify(path.basename(entry.name, ext))
       files.push({ slug, type: dirToType(dir), src: `/media/${dir}/${entry.name}` })
     }
   }
@@ -67,7 +73,7 @@ function scanMdxFiles(): WorkEntry[] {
       if (!entry.isFile() || !entry.name.endsWith('.mdx')) continue
       if (entry.name.startsWith('.')) continue
 
-      const slug = path.basename(entry.name, '.mdx').normalize('NFC')
+      const slug = slugify(path.basename(entry.name, '.mdx'))
       const fullPath = path.join(dirPath, entry.name)
       const raw = fs.readFileSync(fullPath, 'utf-8')
       const { data, content } = matter(raw)
@@ -154,8 +160,8 @@ export function getAllWorks(): WorkEntry[] {
 }
 
 export function getWork(slug: string): WorkEntry | null {
-  const normalized = slug.normalize('NFC')
-  return getIndex().find(w => w.slug === normalized) ?? null
+  const key = slugify(slug)
+  return getIndex().find(w => w.slug === key) ?? null
 }
 
 export function getWorksByType(type: WorkType): WorkEntry[] {
