@@ -1,0 +1,6 @@
+Hello, AIGC Gallery!
+
+This is an auto-discovered text entry.
+No .mdx file needed — just drop your files and they appear in the gallery.
+
+Create a .mdx file with the same slug to add rich metadata like prompt, model, and parameters.
