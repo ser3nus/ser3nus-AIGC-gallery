@@ -1,0 +1,1 @@
+Hello, AIGC Gallery! Auto-discovered text entry. No .mdx needed — drop files and they appear.
