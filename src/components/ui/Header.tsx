@@ -3,11 +3,9 @@ import { getAllWorks } from '@/lib/content'
 import SearchInput from './SearchInput'
 
 const NAV_ITEMS: { label: string; href: string }[] = [
-  { label: '全部', href: '/' },
-  { label: '图片', href: '/category/image' },
-  { label: '视频', href: '/category/video' },
-  { label: '音频', href: '/category/audio' },
-  { label: '文本', href: '/category/text' },
+  { label: '主页', href: '/' },
+  { label: '作品', href: '/works' },
+  { label: '说明', href: '/about' },
 ]
 
 export default function Header() {
