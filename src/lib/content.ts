@@ -4,6 +4,16 @@ import matter from 'gray-matter'
 import { workEntrySchema } from './schema'
 import type { WorkEntry, WorksIndex, WorkType } from './types'
 
+/** Sanitize a filename stem into a URL-safe slug */
+function slugify(name: string): string {
+  return name
+    .normalize('NFC')
+    .replace(/[^a-zA-Z0-9一-鿿㐀-䶿-]/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '')
+    .toLowerCase()
+}
+
 const MEDIA_DIR = path.join(process.cwd(), 'public', 'media')
 const CONTENT_DIR = path.join(process.cwd(), 'content', 'works')
 
@@ -38,7 +48,7 @@ function scanMediaFiles(): RawMediaFile[] {
       const ext = path.extname(entry.name).toLowerCase()
       if (!(MEDIA_EXTENSIONS[dir] || []).includes(ext)) continue
 
-      const slug = path.basename(entry.name, ext)
+      const slug = path.basename(entry.name, ext).normalize('NFC')
       files.push({ slug, type: dirToType(dir), src: `/media/${dir}/${entry.name}` })
     }
   }
@@ -57,7 +67,7 @@ function scanMdxFiles(): WorkEntry[] {
       if (!entry.isFile() || !entry.name.endsWith('.mdx')) continue
       if (entry.name.startsWith('.')) continue
 
-      const slug = path.basename(entry.name, '.mdx')
+      const slug = path.basename(entry.name, '.mdx').normalize('NFC')
       const fullPath = path.join(dirPath, entry.name)
       const raw = fs.readFileSync(fullPath, 'utf-8')
       const { data, content } = matter(raw)
@@ -125,11 +135,18 @@ function buildWorksIndex(): WorksIndex {
   return index
 }
 
-export function invalidateCache(): void { /* no-op: always scan fresh below */ }
+let cache: WorksIndex | null = null
+let cacheTime = 0
+const CACHE_TTL = 5000 // 5 seconds — fresh enough for dev, consistent within a request
+
+export function invalidateCache(): void { cache = null; cacheTime = 0 }
 
 function getIndex(): WorksIndex {
-  // Always scan fresh so new files appear immediately without restart
-  return buildWorksIndex()
+  const now = Date.now()
+  if (cache && (now - cacheTime) < CACHE_TTL) return cache
+  cache = buildWorksIndex()
+  cacheTime = now
+  return cache
 }
 
 export function getAllWorks(): WorkEntry[] {
@@ -137,7 +154,8 @@ export function getAllWorks(): WorkEntry[] {
 }
 
 export function getWork(slug: string): WorkEntry | null {
-  return getIndex().find(w => w.slug === slug) ?? null
+  const normalized = slug.normalize('NFC')
+  return getIndex().find(w => w.slug === normalized) ?? null
 }
 
 export function getWorksByType(type: WorkType): WorkEntry[] {

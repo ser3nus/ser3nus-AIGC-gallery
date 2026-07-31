@@ -1,0 +1,5 @@
+{"timestamp":"00:01:31.023","source":"Server","level":"LOG","message":"✓ Compiled in 104ms"}
+{"timestamp":"00:01:32.697","source":"Server","level":"LOG","message":"✓ Compiled in 128ms"}
+{"timestamp":"00:01:37.363","source":"Server","level":"ERROR","message":"Error: ENOENT: no such file or directory, scandir 'D:\\CODES\\ser3nus-AIGC-gallery\\.claude\\worktrees\\sdd-aigc-gallery\\src\\app'"}
+{"timestamp":"00:01:37.365","source":"Server","level":"ERROR","message":"⨯ \"unhandledRejection:\" Error: ENOENT: no such file or directory, scandir 'D:\\CODES\\ser3nus-AIGC-gallery\\.claude\\worktrees\\sdd-aigc-gallery\\src\\app'"}
+{"timestamp":"00:01:37.366","source":"Server","level":"ERROR","message":"⨯ \"unhandledRejection: \" Error: ENOENT: no such file or directory, scandir 'D:\\CODES\\ser3nus-AIGC-gallery\\.claude\\worktrees\\sdd-aigc-gallery\\src\\app'"}

@@ -11,23 +11,23 @@ const TYPE_LABELS: Record<WorkType, string> = {
   image: '图片', video: '视频', audio: '音频', text: '文本',
 }
 
-interface Props { params: { type: string } }
+interface Props { params: Promise<{ type: string }> }
 
 export function generateStaticParams() {
   return VALID_TYPES.map(type => ({ type }))
 }
 
-export function generateMetadata({ params }: Props): Metadata {
-  const type = params.type as WorkType
-  if (!VALID_TYPES.includes(type)) return { title: '未知分类' }
-  return { title: `${TYPE_LABELS[type]} — Ser3nus Gallery` }
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { type } = await params
+  if (!VALID_TYPES.includes(type as WorkType)) return { title: '未知分类' }
+  return { title: `${TYPE_LABELS[type as WorkType]} — Ser3nus Gallery` }
 }
 
-export default function CategoryPage({ params }: Props) {
-  const type = params.type as WorkType
-  if (!VALID_TYPES.includes(type)) notFound()
+export default async function CategoryPage({ params }: Props) {
+  const { type } = await params
+  if (!VALID_TYPES.includes(type as WorkType)) notFound()
 
-  const works = getWorksByType(type)
+  const works = getWorksByType(type as WorkType)
 
   return (
     <>
