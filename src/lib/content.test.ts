@@ -23,8 +23,9 @@ function writeMedia(subdir: string, filename: string, content = ''): void {
   fs.writeFileSync(path.join(dir, filename), content, 'utf-8')
 }
 
-function writeMdx(slug: string, frontmatter: Record<string, unknown>): void {
-  fs.mkdirSync(CONTENT_DIR, { recursive: true })
+function writeMdx(subdir: string, slug: string, frontmatter: Record<string, unknown>): void {
+  const dir = path.join(CONTENT_DIR, subdir)
+  fs.mkdirSync(dir, { recursive: true })
   const yaml = Object.entries(frontmatter)
     .map(([k, v]) => {
       if (v === undefined || v === null) return `${k}:`
@@ -33,12 +34,11 @@ function writeMdx(slug: string, frontmatter: Record<string, unknown>): void {
       if (Array.isArray(v)) {
         return `${k}:\n${v.map((i: unknown) => `  - ${i}`).join('\n')}`
       }
-      // Quote strings to prevent YAML type coercion (e.g. dates)
       return `${k}: "${v}"`
     })
     .join('\n')
   fs.writeFileSync(
-    path.join(CONTENT_DIR, `${slug}.mdx`),
+    path.join(dir, `${slug}.mdx`),
     `---\n${yaml}\n---\n\n# ${frontmatter.title ?? slug}\n`,
     'utf-8',
   )
@@ -139,7 +139,6 @@ describe('content loader', () => {
     expect(works).toHaveLength(1)
     expect(works[0]).toMatchObject({
       slug: 'bare-sunset',
-      title: 'bare-sunset',
       type: 'image',
       src: '/media/images/bare-sunset.png',
       isBare: true,
@@ -147,9 +146,9 @@ describe('content loader', () => {
   })
 
   it('loads full entries from .mdx frontmatter', () => {
-    writeMdx('sunset-overdrive', validMdxFrontmatter)
+    writeMdx('images', 'sunset-overdrive', validMdxFrontmatter)
     writeMedia('images', 'sunset.png')
-    createdMdx.push('sunset-overdrive.mdx')
+    createdMdx.push('images/sunset-overdrive.mdx')
     createdMedia.push('images/sunset.png')
 
     const work = getWork('sunset-overdrive')
@@ -162,7 +161,7 @@ describe('content loader', () => {
   })
 
   it('prefers .mdx metadata over bare media entry for same slug', () => {
-    writeMdx('ocean', {
+    writeMdx('images', 'ocean', {
       title: 'Deep Ocean',
       type: 'image',
       date: '2026-06-01',
@@ -170,9 +169,9 @@ describe('content loader', () => {
       thumbnail: '/media/thumbnails/ocean.webp',
       model: 'DALL-E 3',
       prompt: 'Deep blue ocean waves',
-    } satisfies Record<string, unknown>)
+    })
     writeMedia('images', 'ocean.png')
-    createdMdx.push('ocean.mdx')
+    createdMdx.push('images/ocean.mdx')
     createdMedia.push('images/ocean.png')
 
     const works = getAllWorks()
@@ -186,7 +185,7 @@ describe('content loader', () => {
   it('getAllWorks returns all entries (bare + metadata)', () => {
     writeMedia('images', 'photo-a.png')
     writeMedia('images', 'photo-b.png')
-    writeMdx('photo-a', {
+    writeMdx('images', 'photo-a', {
       title: 'Photo A',
       type: 'image',
       date: '2026-01-01',
@@ -196,7 +195,7 @@ describe('content loader', () => {
       prompt: 'A photo',
     } satisfies Record<string, unknown>)
     createdMedia.push('images/photo-a.png', 'images/photo-b.png')
-    createdMdx.push('photo-a.mdx')
+    createdMdx.push('images/photo-a.mdx')
 
     const works = getAllWorks()
     expect(works).toHaveLength(2)
@@ -206,9 +205,9 @@ describe('content loader', () => {
     expect(b!.isBare).toBe(true)
   })
 
-  it('getWork returns undefined for unknown slug', () => {
+  it('getWork returns null for unknown slug', () => {
     const result = getWork('nonexistent')
-    expect(result).toBeUndefined()
+    expect(result).toBeNull()
   })
 
   it('getWorksByType filters correctly', () => {
@@ -239,14 +238,14 @@ describe('content loader', () => {
   })
 
   it('getFeaturedWorks returns only featured entries', () => {
-    writeMdx('featured-one', {
+    writeMdx('images', 'featured-one', {
       ...validMdxFrontmatter,
       slug: 'featured-one',
       featured: true,
       src: '/media/images/f1.png',
       thumbnail: '/media/thumbnails/f1.webp',
     })
-    writeMdx('not-featured', {
+    writeMdx('images', 'not-featured', {
       ...validMdxFrontmatter,
       slug: 'not-featured',
       featured: false,
@@ -256,7 +255,7 @@ describe('content loader', () => {
     })
     writeMedia('images', 'f1.png')
     writeMedia('images', 'nf.png')
-    createdMdx.push('featured-one.mdx', 'not-featured.mdx')
+    createdMdx.push('images/featured-one.mdx', 'images/not-featured.mdx')
     createdMedia.push('images/f1.png', 'images/nf.png')
 
     const featured = getFeaturedWorks()
