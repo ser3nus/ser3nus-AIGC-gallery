@@ -13,7 +13,7 @@ export default function ImageViewer({ src, alt }: { src: string; alt: string }) 
         <Image src={assetPath(src)} alt={alt} fill className="object-contain" priority />
       </div>
       {isFullscreen && (
-        <div className="fixed inset-0 z-50 bg-warm-900/95 flex items-center justify-center cursor-zoom-out" onClick={() => setIsFullscreen(false)}>
+        <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center cursor-zoom-out" onClick={() => setIsFullscreen(false)}>
           <div className="relative w-full h-full max-w-[90vw] max-h-[90vh] m-auto">
             <Image src={assetPath(src)} alt={alt} fill className="object-contain" />
           </div>

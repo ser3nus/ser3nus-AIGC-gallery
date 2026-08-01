@@ -8,10 +8,7 @@ export default function MetaPanel({ work }: { work: WorkEntry }) {
   if (work.isBare) {
     return (
       <div className="space-y-6 mt-8 max-w-2xl mx-auto">
-        <div className="text-center py-8 text-warm-400 italic">
-          暂无元信息
-          <p className="text-xs mt-2">创建 content/works/{work.type}s/{work.slug}.mdx 文件以添加 AIGC 元信息</p>
-        </div>
+        <div className="text-center py-8 text-warm-400 italic">暂无元信息</div>
       </div>
     )
   }
