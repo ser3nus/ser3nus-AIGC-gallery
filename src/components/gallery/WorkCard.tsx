@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import type { WorkEntry } from '@/lib/types'
+import { assetPath } from '@/lib/paths'
 
 const TYPE_ICONS: Record<string, string> = {
   image: '🖼', video: '🎬', audio: '🎵', text: '📝',
@@ -14,7 +15,7 @@ export default function WorkCard({ work }: { work: WorkEntry }) {
       <article className="group relative overflow-hidden rounded-lg border border-warm-200 bg-white shadow-sm hover:shadow-md transition-shadow hover:-translate-y-1 duration-300">
         <div className="aspect-[4/3] relative bg-warm-100">
           {(work.thumbnail || (work.type === 'image' ? work.src : '')) ? (
-            <Image src={work.thumbnail || work.src} alt={work.title} fill className="object-cover" sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" />
+            <Image src={assetPath(work.thumbnail || work.src)} alt={work.title} fill className="object-cover" sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" />
           ) : (
             <div className="flex items-center justify-center h-full text-4xl text-warm-300">{TYPE_ICONS[work.type] || '📄'}</div>
           )}

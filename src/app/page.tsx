@@ -1,6 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import { getBannerWorks } from '@/lib/content'
+import { assetPath } from '@/lib/paths'
 import HeroBanner from '@/components/gallery/HeroBanner'
 
 function getBackgroundImage(): string | null {
@@ -25,7 +26,7 @@ export default function HomePage() {
       {bg && (
         <div
           className="fixed inset-0 z-0 opacity-45 bg-cover bg-center bg-no-repeat"
-          style={{ backgroundImage: `url('${bg}')` }}
+          style={{ backgroundImage: `url('${assetPath(bg)}')` }}
         />
       )}
 
