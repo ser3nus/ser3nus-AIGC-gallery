@@ -23,18 +23,22 @@ function slugify(name: string): string {
 const MEDIA_DIR = path.join(process.cwd(), 'public', 'media')
 const CONTENT_DIR = path.join(process.cwd(), 'content', 'works')
 
+const IMG_EXTS = ['.png', '.jpg', '.jpeg', '.webp', '.avif', '.gif', '.svg']
+
 const MEDIA_EXTENSIONS: Record<string, string[]> = {
-  images: ['.png', '.jpg', '.jpeg', '.webp', '.avif', '.gif', '.svg'],
+  images: IMG_EXTS,
   videos: ['.mp4', '.webm', '.mov'],
   audio: ['.mp3', '.wav', '.ogg', '.flac'],
   text: ['.md', '.txt'],
+  banner: IMG_EXTS,
+  background: IMG_EXTS,
 }
 
-const SCAN_DIRS = ['images', 'videos', 'audio', 'text'] as const
+const SCAN_DIRS = ['images', 'videos', 'audio', 'text', 'banner', 'background'] as const
 type ScanDir = typeof SCAN_DIRS[number]
 
 function dirToType(dir: ScanDir): WorkType {
-  const map: Record<ScanDir, WorkType> = { images: 'image', videos: 'video', audio: 'audio', text: 'text' }
+  const map: Record<ScanDir, WorkType> = { images: 'image', videos: 'video', audio: 'audio', text: 'text', banner: 'image', background: 'image' }
   return map[dir]
 }
 
@@ -99,27 +103,62 @@ function scanMdxFiles(): WorkEntry[] {
   return works
 }
 
+// Priority order for dedup: images > banner > background > videos > audio > text
+const DIR_PRIORITY: Record<string, number> = {
+  images: 1, banner: 2, background: 3, videos: 4, audio: 5, text: 6,
+}
+
 function buildWorksIndex(): WorksIndex {
   const mediaFiles = scanMediaFiles()
   const mdxWorks = scanMdxFiles()
-  const mdxSlugs = new Set(mdxWorks.map(w => w.slug))
-  const index: WorksIndex = [...mdxWorks]
 
-  for (const mediaFile of mediaFiles) {
-    if (!mdxSlugs.has(mediaFile.slug)) {
-      index.push({
-        slug: mediaFile.slug,
-        title: mediaFile.slug.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()),
-        type: mediaFile.type,
-        date: new Date().toISOString().split('T')[0],
-        src: mediaFile.src,
-        model: null,
-        prompt: null,
-        featured: false,
-        tags: [],
-        isBare: true,
-      })
+  // Map slug → best media file (highest priority dir)
+  const mediaBySlug = new Map<string, RawMediaFile>()
+  for (const m of mediaFiles) {
+    const existing = mediaBySlug.get(m.slug)
+    if (!existing) { mediaBySlug.set(m.slug, m); continue }
+    const curDir = m.src.split('/')[2] // /media/{dir}/file
+    const existDir = existing.src.split('/')[2]
+    if ((DIR_PRIORITY[curDir] ?? 99) < (DIR_PRIORITY[existDir] ?? 99)) {
+      mediaBySlug.set(m.slug, m)
     }
+  }
+
+  const index: WorksIndex = []
+  const usedSlugs = new Set<string>()
+
+  // MDX works first; fix src if file missing but media exists elsewhere
+  for (const mdx of mdxWorks) {
+    const srcPath = path.join(process.cwd(), 'public', mdx.src)
+    if (!fs.existsSync(srcPath)) {
+      const alt = mediaBySlug.get(mdx.slug)
+      if (alt) {
+        mdx.src = alt.src
+        if (!mdx.thumbnail) mdx.thumbnail = alt.src
+      } else if (mdx.featured) {
+        throw new Error(`[content] Featured work "${mdx.slug}" has missing src: ${mdx.src}`)
+      }
+    }
+    index.push(mdx)
+    usedSlugs.add(mdx.slug)
+  }
+
+  // Add remaining bare entries, deduped
+  for (const [, media] of mediaBySlug) {
+    if (usedSlugs.has(media.slug)) continue
+    index.push({
+      slug: media.slug,
+      title: media.slug.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()),
+      type: media.type,
+      date: new Date().toISOString().split('T')[0],
+      src: media.src,
+      model: null,
+      prompt: null,
+      featured: false,
+      tags: [],
+      isBare: true,
+    })
+    usedSlugs.add(media.slug)
   }
 
   // Check featured works have valid files
@@ -128,13 +167,6 @@ function buildWorksIndex(): WorksIndex {
     if (!fs.existsSync(filePath)) {
       throw new Error(`[content] Featured work "${w.slug}" has missing src: ${w.src}`)
     }
-  }
-
-  // Check for duplicate slugs
-  const slugs = new Set<string>()
-  for (const w of index) {
-    if (slugs.has(w.slug)) throw new Error(`[content] Duplicate slug: "${w.slug}"`)
-    slugs.add(w.slug)
   }
 
   index.sort((a, b) => b.date.localeCompare(a.date))
@@ -170,4 +202,9 @@ export function getWorksByType(type: WorkType): WorkEntry[] {
 
 export function getFeaturedWorks(): WorkEntry[] {
   return getIndex().filter(w => w.featured)
+}
+
+/** Works in public/media/banner/ — appear in homepage carousel */
+export function getBannerWorks(): WorkEntry[] {
+  return getIndex().filter(w => w.src.startsWith('/media/banner/'))
 }

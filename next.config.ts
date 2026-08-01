@@ -1,7 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  output: 'export',
+  basePath: '/ser3nus-AIGC-gallery',
+  images: { unoptimized: true },
 };
 
 export default nextConfig;
