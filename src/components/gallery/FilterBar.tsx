@@ -16,7 +16,7 @@ export default function FilterBar() {
   // trailingSlash: true makes usePathname return a trailing slash; compare without it
   const norm = (p: string) => (p === '/' ? '/' : p.replace(/\/+$/, ''))
   return (
-    <div className="flex justify-center gap-2 mb-12">
+    <div className="flex flex-wrap justify-center gap-2 mb-12">
       {FILTERS.map(({ label, href, active }) => {
         const isActive = active ? active(pathname) : norm(pathname) === norm(href)
         return (

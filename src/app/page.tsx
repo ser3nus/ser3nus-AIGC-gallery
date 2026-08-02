@@ -32,7 +32,7 @@ export default function HomePage() {
 
       <div className="relative z-10">
         <section className="text-center py-8">
-          <h1 className="font-serif text-5xl font-bold text-warm-900 drop-shadow-md">Ser3nus AIGC Gallery</h1>
+          <h1 className="font-serif text-3xl sm:text-5xl font-bold text-warm-900 drop-shadow-md">Ser3nus AIGC Gallery</h1>
         </section>
         <HeroBanner works={works} />
       </div>

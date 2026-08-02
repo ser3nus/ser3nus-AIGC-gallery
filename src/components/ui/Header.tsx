@@ -13,12 +13,12 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-50 bg-warm-50/90 backdrop-blur border-b border-warm-200">
-      <nav className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-        <Link href="/" className="font-serif text-2xl tracking-wide text-warm-800 hover:text-warm-600 transition-colors">
+      <nav className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+        <Link href="/" className="font-serif text-xl sm:text-2xl tracking-wide text-warm-800 hover:text-warm-600 transition-colors">
           Ser3nus Gallery
         </Link>
-        <div className="flex items-center gap-6">
-          <ul className="flex gap-6 text-sm tracking-widest uppercase">
+        <div className="flex items-center gap-3 sm:gap-6">
+          <ul className="flex gap-4 sm:gap-6 text-sm tracking-widest uppercase">
             {NAV_ITEMS.map(({ label, href }) => (
               <li key={href}>
                 <Link href={href} className="text-warm-500 hover:text-warm-800 transition-colors">
@@ -27,7 +27,9 @@ export default function Header() {
               </li>
             ))}
           </ul>
-          <SearchInput works={works} />
+          <div className="hidden sm:block">
+            <SearchInput works={works} />
+          </div>
         </div>
       </nav>
     </header>

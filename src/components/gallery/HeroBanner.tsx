@@ -27,14 +27,14 @@ export default function HeroBanner({ works }: { works: WorkEntry[] }) {
       {works.length > 1 && (
         <button
           onClick={prev}
-          className="shrink-0 w-12 h-12 rounded-full bg-white border border-warm-200 shadow-md hover:bg-warm-50 text-warm-600 text-2xl flex items-center justify-center transition-colors"
+          className="hidden sm:flex shrink-0 w-12 h-12 rounded-full bg-white border border-warm-200 shadow-md hover:bg-warm-50 text-warm-600 text-2xl items-center justify-center transition-colors"
           aria-label="上一张"
         >
           ‹
         </button>
       )}
 
-      <div className="relative flex-1 h-[80vh] min-h-[560px] rounded-xl overflow-hidden group">
+      <div className="relative flex-1 aspect-[4/3] max-h-[80vh] rounded-xl overflow-hidden group sm:aspect-video">
         <Link href={`/works/${work.slug}`}>
           {(work.thumbnail || work.src) ? (
             <Image src={assetPath(work.thumbnail || work.src)} alt={work.title} fill className="object-cover transition-transform duration-700 group-hover:scale-105 cursor-pointer" priority />
@@ -70,7 +70,7 @@ export default function HeroBanner({ works }: { works: WorkEntry[] }) {
       {works.length > 1 && (
         <button
           onClick={next}
-          className="shrink-0 w-12 h-12 rounded-full bg-white border border-warm-200 shadow-md hover:bg-warm-50 text-warm-600 text-2xl flex items-center justify-center transition-colors"
+          className="hidden sm:flex shrink-0 w-12 h-12 rounded-full bg-white border border-warm-200 shadow-md hover:bg-warm-50 text-warm-600 text-2xl items-center justify-center transition-colors"
           aria-label="下一张"
         >
           ›

@@ -11,6 +11,22 @@ export default function TocNav({ sections }: { sections: Section[] }) {
   const [activeId, setActiveId] = useState('')
 
   useEffect(() => {
+    const els = sections.map((s) => document.getElementById(s.id)).filter(Boolean) as HTMLElement[]
+
+    // Fallback for browsers without IntersectionObserver (older WebViews)
+    if (typeof IntersectionObserver === 'undefined') {
+      const onScroll = () => {
+        let current = ''
+        for (const el of els) {
+          if (el.getBoundingClientRect().top <= 80) current = el.id
+        }
+        setActiveId(current)
+      }
+      window.addEventListener('scroll', onScroll)
+      onScroll()
+      return () => window.removeEventListener('scroll', onScroll)
+    }
+
     const observer = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
@@ -22,7 +38,6 @@ export default function TocNav({ sections }: { sections: Section[] }) {
       { rootMargin: '-20% 0% -70% 0%' },
     )
 
-    const els = sections.map((s) => document.getElementById(s.id)).filter(Boolean) as HTMLElement[]
     els.forEach((el) => observer.observe(el))
     return () => observer.disconnect()
   }, [sections])
