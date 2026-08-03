@@ -9,8 +9,7 @@
     "lint": "next lint",
     "test": "vitest run",
     "test:watch": "vitest",
-    "predeploy": "npm run build",
-    "deploy": "gh-pages -d out"
+    "deploy": "node scripts/deploy.mjs"
   },
   "dependencies": {
     "framer-motion": "^12.43.0",

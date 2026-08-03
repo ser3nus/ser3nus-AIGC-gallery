@@ -16,7 +16,7 @@ Personal gallery of AI-generated media (image/video/audio/text). Next.js 16 App 
 - `npm test` / `npm run test:watch` — vitest (jsdom, globals on)
 - `npx tsc --noEmit` — typecheck (CI)
 - Lint: `npm run lint` is **broken** — `next lint` was removed in Next 16. Use `node node_modules/eslint/bin/eslint.js src` (or `npx eslint src`; plain `npx.cmd eslint` segfaults on this Windows box). There are pre-existing errors (`react/no-unescaped-entities` in WorkCard.tsx / PromptCard.tsx) and a warning in `src/app/layout.tsx`; fix new ones, don't add more.
-- `npm run deploy` — `gh-pages -d out` (manual deploy; GitHub Actions also deploys on push to `main`)
+- `npm run deploy` — run `scripts/deploy.mjs`: rebuilds `out/`, adds `.nojekyll`, then force-pushes a fresh `gh-pages` branch (SSH `git@github.com:ser3nus/ser3nus-AIGC-gallery.git`). Replaces the `gh-pages` npm package, whose cache (`node_modules/.cache/gh-pages`) got pushed to the remote and caused stale/inconsistent deploys (404s after adding images). GitHub Actions (`deploy.yml`) exists but Pages source is the legacy `gh-pages` branch, so pushes to `main` do NOT deploy.
 
 ## Architecture
 
