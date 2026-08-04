@@ -34,10 +34,10 @@ export default function HeroBanner({ works }: { works: WorkEntry[] }) {
         </button>
       )}
 
-      <div className="relative flex-1 aspect-[4/3] max-h-[80vh] rounded-xl overflow-hidden group sm:aspect-video">
+      <div className="relative flex-1 aspect-[4/3] max-h-[80vh] rounded-xl overflow-hidden group sm:aspect-video bg-warm-900">
         <Link href={`/works/${work.slug}`}>
           {(work.thumbnail || work.src) ? (
-            <Image src={assetPath(work.thumbnail || work.src)} alt={work.title} fill className="object-cover transition-transform duration-700 group-hover:scale-105 cursor-pointer" priority />
+            <Image src={assetPath(work.thumbnail || work.src)} alt={work.title} fill className="object-contain transition-transform duration-700 group-hover:scale-105 cursor-pointer" priority />
           ) : null}
           <div className="absolute inset-0 bg-gradient-to-t from-warm-900/80 via-transparent to-transparent" />
         </Link>
