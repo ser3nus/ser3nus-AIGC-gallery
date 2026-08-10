@@ -1,6 +1,7 @@
 {
   "name": "sdd-aigc-gallery",
   "version": "0.1.0",
+  "type": "module",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -9,7 +10,8 @@
     "lint": "next lint",
     "test": "vitest run",
     "test:watch": "vitest",
-    "deploy": "node scripts/deploy.mjs"
+    "deploy": "node scripts/deploy.mjs",
+    "encrypt-private": "tsx scripts/encrypt-private.ts"
   },
   "dependencies": {
     "framer-motion": "^12.43.0",
@@ -32,6 +34,7 @@
     "eslint-config-next": "16.2.12",
     "jsdom": "^29.1.1",
     "tailwindcss": "^4",
+    "tsx": "^4.23.9",
     "typescript": "^5",
     "vitest": "^4.1.10"
   }

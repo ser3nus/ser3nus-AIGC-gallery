@@ -34,7 +34,7 @@ export default function HeroBanner({ works }: { works: WorkEntry[] }) {
         </button>
       )}
 
-      <div className="relative flex-1 aspect-[1/1] max-h-[80vh] rounded-xl overflow-hidden group sm:aspect-[4/3]">
+      <div className="relative flex-1 aspect-[3/4] max-h-[90vh] rounded-xl overflow-hidden group sm:aspect-[1/1]">
         <Link href={`/works/${work.slug}`}>
           {(work.thumbnail || work.src) ? (
             <Image src={assetPath(work.thumbnail || work.src)} alt={work.title} fill className="object-cover transition-transform duration-700 group-hover:scale-105 cursor-pointer" priority />

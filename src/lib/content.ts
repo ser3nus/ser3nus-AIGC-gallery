@@ -42,27 +42,33 @@ function dirToType(dir: ScanDir): WorkType {
   return map[dir]
 }
 
-interface RawMediaFile { slug: string; type: WorkType; src: string }
+interface RawMediaFile { slug: string; type: WorkType; src: string; category?: string }
 
 function scanMediaFiles(): RawMediaFile[] {
   if (!fs.existsSync(MEDIA_DIR)) return []
   const files: RawMediaFile[] = []
-
   for (const dir of SCAN_DIRS) {
     const dirPath = path.join(MEDIA_DIR, dir)
     if (!fs.existsSync(dirPath)) continue
-
-    for (const entry of fs.readdirSync(dirPath, { withFileTypes: true })) {
-      if (!entry.isFile()) continue
-      if (entry.name.startsWith('.')) continue
-      const ext = path.extname(entry.name).toLowerCase()
-      if (!(MEDIA_EXTENSIONS[dir] || []).includes(ext)) continue
-
-      const slug = slugify(path.basename(entry.name, ext))
-      files.push({ slug, type: dirToType(dir), src: `/media/${dir}/${entry.name}` })
-    }
+    walkDir(dirPath, dir, '', files)
   }
   return files
+}
+
+function walkDir(dirPath: string, dir: ScanDir, category: string, files: RawMediaFile[]): void {
+  for (const entry of fs.readdirSync(dirPath, { withFileTypes: true })) {
+    if (entry.name.startsWith('.')) continue
+    const fullPath = path.join(dirPath, entry.name)
+    if (entry.isDirectory()) {
+      walkDir(fullPath, dir, category ? `${category}/${entry.name}` : entry.name, files)
+    } else if (entry.isFile()) {
+      const ext = path.extname(entry.name).toLowerCase()
+      if (!(MEDIA_EXTENSIONS[dir] || []).includes(ext)) continue
+      const slug = slugify(path.basename(entry.name, ext))
+      const sub = category ? `${category}/` : ''
+      files.push({ slug, type: dirToType(dir), src: `/media/${dir}/${sub}${entry.name}`, category: category || undefined })
+    }
+  }
 }
 
 function scanMdxFiles(): WorkEntry[] {
@@ -112,6 +118,12 @@ function buildWorksIndex(): WorksIndex {
   const mediaFiles = scanMediaFiles()
   const mdxWorks = scanMdxFiles()
 
+  // Slugs that have a banner file (before dedup — these are banner works
+  // even if dedup picks the images version for the work entry's src)
+  const bannerSlugs = new Set(
+    mediaFiles.filter(m => m.src.startsWith('/media/banner/')).map(m => m.slug)
+  )
+
   // Map slug → best media file (highest priority dir)
   const mediaBySlug = new Map<string, RawMediaFile>()
   for (const m of mediaFiles) {
@@ -139,6 +151,8 @@ function buildWorksIndex(): WorksIndex {
         throw new Error(`[content] Featured work "${mdx.slug}" has missing src: ${mdx.src}`)
       }
     }
+    const cat = categoryFromSrc(mdx.src)
+    if (cat) mdx.category = cat
     index.push(mdx)
     usedSlugs.add(mdx.slug)
   }
@@ -156,9 +170,15 @@ function buildWorksIndex(): WorksIndex {
       prompt: null,
       featured: false,
       tags: [],
+      category: media.category,
       isBare: true,
     })
     usedSlugs.add(media.slug)
+  }
+
+  // Mark works that also have a banner file (survives dedup)
+  for (const w of index) {
+    if (bannerSlugs.has(w.slug)) (w as any).banner = true
   }
 
   // Check featured works have valid files
@@ -204,7 +224,30 @@ export function getFeaturedWorks(): WorkEntry[] {
   return getIndex().filter(w => w.featured)
 }
 
-/** Works in public/media/banner/ — appear in homepage carousel */
+/** Derive category (relative path) from a media src like /media/{dir}/{subpath}. */
+function categoryFromSrc(src: string): string | undefined {
+  const parts = src.split('/').filter(Boolean)
+  if (parts.length <= 3) return undefined
+  // slice(2, -1) drops "media" + "{dir}" prefix and the filename, leaving just the subdirectory path
+  const cat = parts.slice(2, -1).join('/')
+  return cat || undefined
+}
+
+/** All selectable categories (including parent paths), deduped and sorted. */
+export function getCategories(): string[] {
+  const set = new Set<string>()
+  for (const w of getIndex()) {
+    const c = w.category ?? categoryFromSrc(w.src)
+    if (!c) continue
+    const parts = c.split('/')
+    for (let i = 1; i <= parts.length; i++) set.add(parts.slice(0, i).join('/'))
+  }
+  return [...set].sort()
+}
+
+/** Works with a file in public/media/banner/ — appear in homepage carousel.
+ *  Uses a banner flag set during index building so dedup (images > banner)
+ *  doesn't strip banner works that also exist in images subdirectories. */
 export function getBannerWorks(): WorkEntry[] {
-  return getIndex().filter(w => w.src.startsWith('/media/banner/'))
+  return getIndex().filter(w => (w as any).banner === true)
 }
