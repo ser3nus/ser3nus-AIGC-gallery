@@ -59,11 +59,27 @@ export default function PrivateGallery() {
         </>
       )}
 
-      {open && (
-        <div className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center cursor-zoom-out" onClick={() => setOpen(null)}>
-          <img src={open.url} alt={open.title} className="max-w-[95vw] max-h-[92vh] object-contain" />
-        </div>
-      )}
+      {open && (() => {
+        const filtered = images.filter((img) => !activeCat || img.category === activeCat || img.category?.startsWith(activeCat + '/'))
+        const idx = filtered.findIndex((img) => img.slug === open.slug)
+        const prevImg = idx > 0 ? filtered[idx - 1] : null
+        const nextImg = idx < filtered.length - 1 ? filtered[idx + 1] : null
+        return (
+          <div className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center" onClick={() => setOpen(null)}>
+            {prevImg && (
+              <button className="absolute left-4 top-1/2 -translate-y-1/2 z-10 w-12 h-12 rounded-full bg-white/20 hover:bg-white/40 text-white text-2xl flex items-center justify-center transition-colors" onClick={(e) => { e.stopPropagation(); setOpen(prevImg) }} aria-label="上一张">‹</button>
+            )}
+            {nextImg && (
+              <button className="absolute right-4 top-1/2 -translate-y-1/2 z-10 w-12 h-12 rounded-full bg-white/20 hover:bg-white/40 text-white text-2xl flex items-center justify-center transition-colors" onClick={(e) => { e.stopPropagation(); setOpen(nextImg) }} aria-label="下一张">›</button>
+            )}
+            <img src={open.url} alt={open.title} className="max-w-[95vw] max-h-[92vh] object-contain cursor-zoom-out" onClick={(e) => { e.stopPropagation(); setOpen(null) }} />
+            <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/70 to-transparent">
+              <p className="text-white text-lg">{open.title}</p>
+              {open.category && <p className="text-warm-200 text-sm">{open.category}</p>}
+            </div>
+          </div>
+        )
+      })()}
     </div>
   )
 }
