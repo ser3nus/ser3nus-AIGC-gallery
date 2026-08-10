@@ -6,7 +6,7 @@ import PrivateCard from './PrivateCard'
 import CategoryFilter from '@/components/gallery/CategoryFilter'
 
 export default function PrivateGallery() {
-  const { status, unlock, images } = usePrivateImages()
+  const { status, unlock, images, progress } = usePrivateImages()
   const [password, setPassword] = useState('')
   const [open, setOpen] = useState<PrivateImage | null>(null)
   const [activeCat, setActiveCat] = useState<string | null>(null)
@@ -35,6 +35,14 @@ export default function PrivateGallery() {
               {status === 'loading' ? '解锁中…' : '解锁'}
             </button>
           </form>
+          {status === 'loading' && (
+            <div className="mt-4">
+              <div className="w-full h-1.5 bg-warm-100 rounded-full overflow-hidden">
+                <div className="h-full bg-warm-600 rounded-full transition-all duration-300" style={{ width: `${progress}%` }} />
+              </div>
+              <p className="text-xs text-warm-400 mt-1">{progress}%</p>
+            </div>
+          )}
           {status === 'error' && <p className="text-red-500 text-xs mt-3">密码错误，或画廊未正确配置</p>}
         </div>
       )}

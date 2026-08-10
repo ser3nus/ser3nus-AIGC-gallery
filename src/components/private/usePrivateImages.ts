@@ -14,33 +14,49 @@ function titleFromSlug(slug: string): string {
   return slug.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
 }
 
+const CONCURRENCY = 6
+
 export function usePrivateImages() {
   const [status, setStatus] = useState<UnlockStatus>('idle')
   const [images, setImages] = useState<PrivateImage[]>([])
+  const [progress, setProgress] = useState(0)
 
   const unlock = useCallback(async (password: string) => {
     try {
       setStatus('loading')
+      setImages([])
+      setProgress(0)
       const res = await fetch(assetPath('/media/private/manifest.json'))
       if (!res.ok) throw new Error('manifest not found')
       const manifest: Manifest = await res.json()
       const salt = base64ToBytes(manifest.salt)
       const key = await deriveKey(password, salt, manifest.iterations)
 
-      const urls: PrivateImage[] = []
-      for (const img of manifest.images) {
+      const total = manifest.images.length
+      const decrypted: PrivateImage[] = []
+      const queue = [...manifest.images]
+
+      async function decryptOne(img: ManifestImage): Promise<PrivateImage> {
         const data = await (await fetch(assetPath(`/media/private/${img.file}`))).json()
         const plain = await decryptBytes(key, base64ToBytes(data.iv), base64ToBytes(data.ciphertext))
         const blob = new Blob([plain as Uint8Array<ArrayBuffer>])
-        urls.push({ slug: img.slug, title: titleFromSlug(img.slug), url: URL.createObjectURL(blob), category: img.category })
+        return { slug: img.slug, title: titleFromSlug(img.slug), url: URL.createObjectURL(blob), category: img.category }
       }
-      setImages(urls)
+
+      while (queue.length > 0) {
+        const batch = queue.splice(0, CONCURRENCY)
+        const results = await Promise.all(batch.map(decryptOne))
+        decrypted.push(...results)
+        setImages([...decrypted])
+        setProgress(Math.round((decrypted.length / total) * 100))
+      }
       setStatus('unlocked')
     } catch {
       setImages([])
+      setProgress(0)
       setStatus('error')
     }
   }, [])
 
-  return { status, unlock, images }
+  return { status, unlock, images, progress }
 }
