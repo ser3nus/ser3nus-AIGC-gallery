@@ -38,12 +38,10 @@ export default async function WorkDetailPage({ params }: Props) {
 
       <div className="mt-8 flex items-center justify-between">
         <div>
-          <h1 className="font-serif text-3xl text-warm-800">{work.title}</h1>
-          {work.date && <time className="text-sm text-warm-400">{work.date}</time>}
+          {prev && <Link href={`/works/${prev.slug}`} className="text-sm text-warm-500 hover:text-warm-700 transition-colors">← 上一篇</Link>}
         </div>
-        <div className="flex gap-4">
-          {prev && <Link href={`/works/${prev.slug}`} className="text-sm text-warm-500 hover:text-warm-700 transition-colors">← {prev.title}</Link>}
-          {next && <Link href={`/works/${next.slug}`} className="text-sm text-warm-500 hover:text-warm-700 transition-colors">{next.title} →</Link>}
+        <div>
+          {next && <Link href={`/works/${next.slug}`} className="text-sm text-warm-500 hover:text-warm-700 transition-colors">下一篇 →</Link>}
         </div>
       </div>
 
