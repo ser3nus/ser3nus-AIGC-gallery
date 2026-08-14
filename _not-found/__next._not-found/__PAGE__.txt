@@ -1,0 +1,6 @@
+1:"$Sreact.fragment"
+2:I[22016,["/ser3nus-AIGC-gallery/_next/static/chunks/43ld4wdaqv9wr.js","/ser3nus-AIGC-gallery/_next/static/chunks/14mrh2-p_w84d.js"],""]
+3:I[97367,["/ser3nus-AIGC-gallery/_next/static/chunks/43ld4wdaqv9wr.js","/ser3nus-AIGC-gallery/_next/static/chunks/14mrh2-p_w84d.js"],"OutletBoundary"]
+4:"$Sreact.suspense"
+0:{"rsc":["$","$1","c",{"children":[["$","div",null,{"className":"flex flex-col items-center justify-center py-32 text-center","children":[["$","h1",null,{"className":"font-serif text-6xl text-warm-300 mb-4","children":"404"}],["$","p",null,{"className":"text-warm-500 mb-8","children":"作品未找到"}],["$","$L2",null,{"href":"/","className":"text-sm text-warm-600 hover:text-warm-800 underline underline-offset-4 transition-colors","children":"返回首页"}]]}],null,["$","$L3",null,{"children":["$","$4",null,{"name":"Next.MetadataOutlet","children":"$@5"}]}]]}],"isPartial":false,"staleTime":300,"varyParams":null,"buildId":"eA_tUInmJ7-KpOQj6heq0"}
+5:null

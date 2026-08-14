@@ -1,0 +1,7 @@
+1:"$Sreact.fragment"
+2:I[26908,["/ser3nus-AIGC-gallery/_next/static/chunks/43ld4wdaqv9wr.js","/ser3nus-AIGC-gallery/_next/static/chunks/14mrh2-p_w84d.js","/ser3nus-AIGC-gallery/_next/static/chunks/1li0-y3bjadkg.js"],"default"]
+3:I[22016,["/ser3nus-AIGC-gallery/_next/static/chunks/43ld4wdaqv9wr.js","/ser3nus-AIGC-gallery/_next/static/chunks/14mrh2-p_w84d.js","/ser3nus-AIGC-gallery/_next/static/chunks/1li0-y3bjadkg.js"],""]
+4:I[97367,["/ser3nus-AIGC-gallery/_next/static/chunks/43ld4wdaqv9wr.js","/ser3nus-AIGC-gallery/_next/static/chunks/14mrh2-p_w84d.js"],"OutletBoundary"]
+5:"$Sreact.suspense"
+0:{"rsc":["$","$1","c",{"children":[[["$","$L2",null,{}],["$","div",null,{"className":"text-center py-16","children":[["$","p",null,{"className":"font-serif text-xl text-warm-400 italic mb-4","children":"该分类暂无作品"}],["$","$L3",null,{"href":"/","className":"text-sm text-warm-500 hover:text-warm-700 underline underline-offset-4","children":"返回首页"}]]}]],[["$","script","script-0",{"src":"/ser3nus-AIGC-gallery/_next/static/chunks/1li0-y3bjadkg.js","async":true}]],["$","$L4",null,{"children":["$","$5",null,{"name":"Next.MetadataOutlet","children":"$@6"}]}]]}],"isPartial":false,"staleTime":300,"varyParams":null,"buildId":"eA_tUInmJ7-KpOQj6heq0"}
+6:null
